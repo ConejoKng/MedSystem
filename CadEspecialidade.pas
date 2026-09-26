@@ -1,0 +1,106 @@
+unit CadEspecialidade;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Buttons, Vcl.ExtCtrls, Vcl.StdCtrls,
+  Vcl.ComCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids;
+
+type
+  TUnitCadEspecialidade = class(TForm)
+    Panel2: TPanel;
+    SpeedButton1: TSpeedButton;
+    Label1: TLabel;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    RadioGroup1: TRadioGroup;
+    RadioButton1: TRadioButton;
+    bntNome: TRadioButton;
+    buscatxt: TEdit;
+    labelFiltros: TLabel;
+    DBGrid1: TDBGrid;
+    Button1: TButton;
+    Button2: TButton;
+    Label2: TLabel;
+    Label3: TLabel;
+    txtAddDescricao: TEdit;
+    listMedico: TComboBox;
+    Button3: TButton;
+    Button4: TButton;
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure RadioButton1Click(Sender: TObject);
+    procedure bntNomeClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  UnitCadEspecialidade: TUnitCadEspecialidade;
+
+implementation
+
+{$R *.dfm}
+
+uses unitDM;
+
+procedure TUnitCadEspecialidade.Button1Click(Sender: TObject);
+begin
+  if RadioButton1.Checked then
+  begin
+    dm.tdClassificacao.Close;
+    dm.tdClassificacao.SQL.Text := ('SELECT * FROM ESPECIALIDADE WHERE ID = :ID');
+    dm.tdClassificacao.ParamByName('ID').AsInteger := StrToInt(buscatxt.Text);
+    dm.tdClassificacao.Open;
+  end
+  else if bntNome.Checked then
+  begin
+    dm.tdClassificacao.Close;
+    dm.tdClassificacao.SQL.Text := 'SELECT * FROM especialidade WHERE nome LIKE ''%'' || :NOME || ''%''';
+    dm.tdClassificacao.ParamByName('NOME').AsString := buscatxt.Text;
+    dm.tdClassificacao.Open;
+  end;
+
+
+end;
+
+procedure TUnitCadEspecialidade.Button2Click(Sender: TObject);
+begin
+  dm.tdClassificacao.Close;
+  dm.tdClassificacao.SQL.Text := ('SELECT * FROM ESPECIALIDADE');
+  dm.tdClassificacao.Open;
+  buscatxt.Text := '';
+end;
+
+procedure TUnitCadEspecialidade.FormCreate(Sender: TObject);
+begin
+  dm.tdClassificacao.Close;
+  dm.tdClassificacao.Open;
+  buscatxt.NumbersOnly := True;
+  listMedico.Items :=
+end;
+
+procedure TUnitCadEspecialidade.bntNomeClick(Sender: TObject);
+begin
+  labelFiltros.Caption := 'Filtrando por nome';
+  buscatxt.NumbersOnly := False;
+end;
+
+procedure TUnitCadEspecialidade.RadioButton1Click(Sender: TObject);
+begin
+  labelFiltros.Caption := 'Filtrando por ID';
+  buscatxt.NumbersOnly := True
+end;
+
+procedure TUnitCadEspecialidade.SpeedButton1Click(Sender: TObject);
+begin
+  close;
+end;
+
+end.

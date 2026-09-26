@@ -1,0 +1,365 @@
+unit UnitAlterarTelaAgendamento;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Buttons, Vcl.ExtCtrls, Data.DB,
+  Vcl.Mask, Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids;
+
+type
+  TUnitAlterarAgendamento = class(TForm)
+    Panel2: TPanel;
+    SpeedButton1: TSpeedButton;
+    GroupBox1: TGroupBox;
+    grupoBoxBuscar: TGroupBox;
+    txtBusca: TEdit;
+    Panel1: TPanel;
+    Label1: TLabel;
+    GroupBox2: TGroupBox;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    mostraId: TEdit;
+    Button1: TButton;
+    Button2: TButton;
+    DBGrid1: TDBGrid;
+    RadioGroup1: TRadioGroup;
+    bntIdPaciente: TRadioButton;
+    bntData: TRadioButton;
+    bntDataHora: TRadioButton;
+    bntMedico: TRadioButton;
+    txtData: TMaskEdit;
+    txtHora: TMaskEdit;
+    Label6: TLabel;
+    mostraIdPaciente: TEdit;
+    editData: TMaskEdit;
+    editHora: TMaskEdit;
+    editMedico: TEdit;
+    GroupBox3: TGroupBox;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    editNome: TEdit;
+    editCpf: TMaskEdit;
+    editCelular: TMaskEdit;
+    editEspecialidade: TComboBox;
+    Button3: TButton;
+    excluirAgend: TButton;
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure bntDataClick(Sender: TObject);
+    procedure bntIdPacienteClick(Sender: TObject);
+    procedure bntDataHoraClick(Sender: TObject);
+    procedure bntMedicoClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure txtBuscaChange(Sender: TObject);
+    procedure conexaoBanco;
+    procedure txtDataChange(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure limparCampos;
+    procedure DBGrid1CellClick(Column: TColumn);
+    procedure mostraIdPacienteChange(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure excluirAgendClick(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure mostrarBotaoGra;
+    procedure editDataChange(Sender: TObject);
+    procedure editHoraChange(Sender: TObject);
+    procedure editEspecialidadeChange(Sender: TObject);
+    procedure editMedicoChange(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  UnitAlterarAgendamento: TUnitAlterarAgendamento;
+
+implementation
+
+{$R *.dfm}
+
+uses unitDM;
+
+procedure TUnitAlterarAgendamento.bntDataClick(Sender: TObject);
+begin
+  grupoBoxBuscar.Caption := 'Filtrar por data';
+  txtData.Visible := True;
+  txtBusca.Visible := False;
+  txtHora.Visible := False;
+  Button3.Visible := True;
+  txtData.Width := 417;
+  conexaoBanco;
+  limparCampos;
+end;
+
+procedure TUnitAlterarAgendamento.bntDataHoraClick(Sender: TObject);
+begin
+  grupoBoxBuscar.Caption := 'Filtrar por Data/Hora';
+  txtData.Visible := True;
+  txtBusca.Visible := False;
+  txtHora.Visible := True;
+  Button3.Visible := True;
+  txtData.Width := 200;
+  conexaoBanco;
+  limparCampos;
+end;
+
+procedure TUnitAlterarAgendamento.bntIdPacienteClick(Sender: TObject);
+begin
+  grupoBoxBuscar.Caption := 'Filtrar por ID do Paciente';
+  txtBusca.NumbersOnly := True;
+  txtBusca.Visible := True;
+  txtHora.Visible := False;
+  txtData.Visible := False;
+  Button3.Visible := False;
+  conexaoBanco;
+  limparCampos;
+end;
+
+procedure TUnitAlterarAgendamento.bntMedicoClick(Sender: TObject);
+begin
+  grupoBoxBuscar.Caption := 'Filtrar por Medico';
+  txtBusca.Visible := True;
+  txtBusca.NumbersOnly := False;
+  txtHora.Visible := False;
+  txtData.Visible := False;
+  Button3.Visible := False;
+  conexaoBanco;
+  limparCampos;
+end;
+
+procedure TUnitAlterarAgendamento.Button1Click(Sender: TObject);
+begin
+      dm.updateAgendamento.Close;
+      dm.updateAgendamento.ParamByName('DATA').AsString := FormatDateTime('yyyy-mm-dd', StrToDate(editData.Text));
+      dm.updateAgendamento.ParamByName('HORA').AsString := editHora.Text;
+      dm.updateAgendamento.ParamByName('ESPECIALIDADE').AsString := editEspecialidade.Items[editEspecialidade.ItemIndex];
+      dm.updateAgendamento.ParamByName('MEDICO').AsString := editMedico.Text;
+      dm.updateAgendamento.ParamByName('ID').AsInteger := StrToInt(mostraId.Text);
+
+      dm.updateAgendamento.ExecSQL;
+      dm.tdAgendamento.Refresh;
+      ShowMessage('Agendamento alterado com sucesso!');
+      limparCampos;
+end;
+
+procedure TUnitAlterarAgendamento.Button2Click(Sender: TObject);
+begin
+  if mostraId.Text <> '' then
+  limparCampos;
+end;
+
+procedure TUnitAlterarAgendamento.Button3Click(Sender: TObject);
+begin
+  if bntData.Checked then
+  begin
+    dm.tdAgendamentoFiltroData.Close;
+    dm.tdAgendamentoFiltroData.ParamByName('DATA').AsString := FormatDateTime('yyyy-mm-dd', StrToDate(txtData.Text));
+    dm.dsAgendamento.DataSet := dm.tdAgendamentoFiltroData;
+    dm.tdAgendamentoFiltroData.Open;
+  end;
+
+  if bntDataHora.Checked then
+  begin
+    dm.tdAgendamentoFDataHora.Close;
+    dm.tdAgendamentoFDataHora.ParamByName('DATA').AsString := FormatDateTime('yyyy-mm-dd', StrToDate(txtData.Text));
+    dm.tdAgendamentoFDataHora.ParamByName('HORA').AsString := txtHora.Text;
+    dm.dsAgendamento.DataSet := dm.tdAgendamentoFDataHora;
+    dm.tdAgendamentoFDataHora.Open;
+  end;
+
+end;
+
+procedure TUnitAlterarAgendamento.conexaoBanco;
+begin
+  dm.tdAgendamento.Close;
+  dm.tdAgendamento.Open;
+end;
+
+procedure TUnitAlterarAgendamento.DBGrid1CellClick(Column: TColumn);
+begin
+  mostraId.Text := IntToStr(dm.dsAgendamento.DataSet.FieldByName('ID').AsInteger);
+  mostraIdPaciente.Text := IntToStr(dm.dsAgendamento.DataSet.FieldByName('ID_PACIENTE').AsInteger);
+  editData.Text := dm.dsAgendamento.DataSet.FieldByName('DATA').AsString;
+  editHora.Text := dm.dsAgendamento.DataSet.FieldByName('HORA').AsString;
+  editMedico.Text := dm.dsAgendamento.DataSet.FieldByName('MEDICO').AsString;
+  if dm.dsAgendamento.DataSet.FieldByName('ESPECIALIDADE').AsString = 'CARDIOLOGISTA' then
+  begin
+    editEspecialidade.ItemIndex := 0
+  end
+  else if dm.dsAgendamento.DataSet.FieldByName('ESPECIALIDADE').AsString = 'NUTRICIONISTA' then
+  begin
+    editEspecialidade.ItemIndex := 1
+  end
+  else
+  begin
+    editEspecialidade.ItemIndex := 2
+  end;
+
+end;
+
+procedure TUnitAlterarAgendamento.editDataChange(Sender: TObject);
+begin
+  if editData.Text <> dm.dsAgendamento.DataSet.FieldByName('DATA').AsString then
+  begin
+    mostrarBotaoGra;
+  end;
+end;
+
+procedure TUnitAlterarAgendamento.editEspecialidadeChange(Sender: TObject);
+begin
+  if editEspecialidade.Items[editEspecialidade.ItemIndex] <> dm.dsAgendamento.DataSet.FieldByName('ESPECIALIDADE').AsString then
+  begin
+    mostrarBotaoGra;
+  end;
+end;
+
+procedure TUnitAlterarAgendamento.editHoraChange(Sender: TObject);
+begin
+  if editHora.Text <> dm.dsAgendamento.DataSet.FieldByName('HORA').AsString then
+  begin
+    mostrarBotaoGra;
+  end;
+end;
+
+procedure TUnitAlterarAgendamento.editMedicoChange(Sender: TObject);
+begin
+  if editMedico.Text <> dm.dsAgendamento.DataSet.FieldByName('MEDICO').AsString then
+  begin
+    mostrarBotaoGra;
+  end;
+end;
+
+procedure TUnitAlterarAgendamento.excluirAgendClick(Sender: TObject);
+begin
+  if (mostraId.Text <> '') then
+  begin
+    if MessageDlg('Você deseja excluir esse registro?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+   begin
+    dm.excluirAgend.Close;
+    dm.excluirAgend.ParamByName('ID').AsInteger := StrToInt(mostraId.Text);
+    dm.excluirAgend.ExecSQL;
+    dm.tdAgendamento.Refresh;
+
+    ShowMessage('Agendamento excluido com sucesso!');
+    limparCampos;
+   end;
+  end
+  else
+  begin
+    ShowMessage('Você precisa selecionar um agendamento para excluir!');
+  end;
+end;
+
+procedure TUnitAlterarAgendamento.FormCreate(Sender: TObject);
+begin
+  conexaoBanco;
+  grupoBoxBuscar.ComponentIndex := -1;
+  Button3.Visible := False;
+  Button1.Visible := False;
+end;
+
+procedure TUnitAlterarAgendamento.limparCampos;
+begin
+  txtBusca.Text := '';
+  txtData.Text := '';
+  txtHora.Text := '';
+  editData.Text := '';
+  editHora.Text := '';
+  editMedico.Text := '';
+  editEspecialidade.ItemIndex := -1;
+  mostraId.Text := '';
+  mostraIdPaciente.Text := '';
+  editNome.Text := '';
+  editCpf.Text := '';
+  editCelular.Text := '';
+end;
+
+procedure TUnitAlterarAgendamento.mostraIdPacienteChange(Sender: TObject);
+begin
+  if mostraId.Text <> '' then
+  begin
+    dm.tdPacienteFiltroId.Close;
+    dm.tdPacienteFiltroId.ParamByName('ID').AsInteger := StrToInt(mostraIdPaciente.Text);
+    dm.tdPacienteFiltroId.Open;
+    dm.dsPaciente.DataSet := dm.tdPacienteFiltroId;
+
+    editNome.Text := dm.dsPaciente.DataSet.FieldByName('NOME').AsString;
+    editCpf.Text := dm.dsPaciente.DataSet.FieldByName('CPF').AsString;
+    editCelular.Text := dm.dsPaciente.DataSet.FieldByName('CELULAR').AsString;
+  end;
+
+end;
+
+procedure TUnitAlterarAgendamento.mostrarBotaoGra;
+begin
+  Button1.Visible := True;
+end;
+
+procedure TUnitAlterarAgendamento.SpeedButton1Click(Sender: TObject);
+begin
+  close;
+end;
+
+procedure TUnitAlterarAgendamento.txtBuscaChange(Sender: TObject);
+begin
+   if Trim(txtBusca.Text) = '' then
+    begin
+      dm.dsAgendamento.DataSet := dm.tdAgendamento;
+      DBGrid1.DataSource.DataSet := dm.tdAgendamento;
+      dm.tdAgendamento.Open;
+      Exit
+    end;
+
+  if bntIdPaciente.Checked then
+  begin
+      dm.tdAgendamentoFiltroIDPaciente.Close;
+      dm.tdAgendamentoFiltroIDPaciente.ParamByName('ID_PACIENTE').AsInteger := StrToInt(txtBusca.Text);
+      dm.dsAgendamento.DataSet := dm.tdAgendamentoFiltroIDPaciente;
+      dm.tdAgendamentoFiltroIDPaciente.Open;
+  end;
+
+  if bntMedico.Checked then
+  begin
+    dm.tdAgendamentoFMedico.Close;
+    dm.tdAgendamentoFMedico.ParamByName('MEDICO').AsString := txtBusca.Text;
+    dm.dsAgendamento.DataSet := dm.tdAgendamentoFMedico;
+    dm.tdAgendamentoFMedico.Open;
+  end;
+
+end;
+
+procedure TUnitAlterarAgendamento.txtDataChange(Sender: TObject);
+var
+  Texto: String;
+  TextoHora: String;
+begin
+  Texto := txtData.Text;
+  Texto := StringReplace(Texto, '/', '', [rfReplaceAll]);
+  Texto := StringReplace(Texto, '_', '', [rfReplaceAll]);
+  Texto := Trim(Texto);
+
+  TextoHora := txtHora.Text;
+  TextoHora := StringReplace(TextoHora, ':', '', [rfReplaceAll]);
+  TextoHora := StringReplace(TextoHora, '_', '', [rfReplaceAll]);
+  TextoHora := Trim(TextoHora);
+
+  if Texto = '' then
+  begin
+    dm.dsAgendamento.DataSet := dm.tdAgendamento;
+    DBGrid1.DataSource.DataSet := dm.tdAgendamento;
+    dm.tdAgendamento.Open;
+  end;
+
+  if (Texto = '') and (TextoHora = '') then
+  begin
+    dm.dsAgendamento.DataSet := dm.tdAgendamento;
+    DBGrid1.DataSource.DataSet := dm.tdAgendamento;
+    dm.tdAgendamento.Open;
+  end;
+
+end;
+end.

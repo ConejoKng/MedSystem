@@ -1,0 +1,333 @@
+object DM: TDM
+  Height = 582
+  Width = 1083
+  object Conexao: TFDConnection
+    Params.Strings = (
+      'Database=C:\BD\SISTEMACLINICA.FDB'
+      'User_Name=SYSDBA'
+      'Password=masterkey'
+      'Server=localhost'
+      'Port=3050'
+      'DriverID=FB')
+    LoginPrompt = False
+    Left = 304
+    Top = 16
+  end
+  object dsPaciente: TDataSource
+    DataSet = tdPaciente
+    Left = 128
+    Top = 40
+  end
+  object dsAgendamento: TDataSource
+    DataSet = tdAgendamento
+    Left = 448
+    Top = 24
+  end
+  object tdPaciente: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'SELECT * FROM PACIENTE ORDER BY ID ASC')
+    Left = 48
+    Top = 32
+    object tdPacienteID: TIntegerField
+      DisplayWidth = 5
+      FieldName = 'ID'
+      Origin = 'ID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+    end
+    object tdPacienteCPF: TStringField
+      DisplayWidth = 14
+      FieldName = 'CPF'
+      Origin = 'CPF'
+      Size = 14
+    end
+    object tdPacienteNOME: TStringField
+      DisplayWidth = 29
+      FieldName = 'NOME'
+      Origin = 'NOME'
+      Size = 80
+    end
+    object tdPacienteCELULAR: TStringField
+      DisplayWidth = 14
+      FieldName = 'CELULAR'
+      Origin = 'CELULAR'
+      Size = 16
+    end
+    object tdPacienteDATA_CADASTRO: TDateField
+      DisplayWidth = 15
+      FieldName = 'DATA_CADASTRO'
+      Origin = 'DATA_CADASTRO'
+    end
+  end
+  object tdAgendamento: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'SELECT * FROM AGENDAMENTO')
+    Left = 552
+    Top = 56
+  end
+  object insertPaciente: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'INSERT INTO PACIENTE (CPF, NOME, CELULAR, DATA_CADASTRO)'
+      'VALUES (:CPF, :NOME, :CELULAR, :DATA_CADASTRO);')
+    Left = 40
+    Top = 200
+    ParamData = <
+      item
+        Name = 'CPF'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 14
+        Value = Null
+      end
+      item
+        Name = 'NOME'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 80
+      end
+      item
+        Name = 'CELULAR'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 16
+      end
+      item
+        Name = 'DATA_CADASTRO'
+        ParamType = ptInput
+      end>
+  end
+  object insertAgendamento: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'INSERT INTO AGENDAMENTO '
+      '(ID_PACIENTE, DATA, HORA, ESPECIALIDADE, MEDICO)'
+      'VALUES'
+      '(:ID_PACIENTE, :DATA, :HORA, :ESPECIALIDADE, :MEDICO);')
+    Left = 552
+    Top = 192
+    ParamData = <
+      item
+        Name = 'ID_PACIENTE'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'DATA'
+        DataType = ftDate
+        ParamType = ptInput
+      end
+      item
+        Name = 'HORA'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 5
+      end
+      item
+        Name = 'ESPECIALIDADE'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 25
+      end
+      item
+        Name = 'MEDICO'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 30
+      end>
+  end
+  object tdPacienteFiltroId: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'SELECT * FROM PACIENTE WHERE ID = :ID')
+    Left = 40
+    Top = 120
+    ParamData = <
+      item
+        Name = 'ID'
+        ParamType = ptInput
+      end>
+  end
+  object tdPacienteFiltroNome: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'SELECT * FROM PACIENTE WHERE NOME LIKE :NOME')
+    Left = 160
+    Top = 112
+    ParamData = <
+      item
+        Name = 'NOME'
+        ParamType = ptInput
+      end>
+  end
+  object tdPacienteFiltroCpf: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'SELECT * FROM PACIENTE WHERE CPF LIKE :CPF')
+    Left = 144
+    Top = 184
+    ParamData = <
+      item
+        Name = 'CPF'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 14
+        Value = Null
+      end>
+  end
+  object updatePaciente: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      
+        'UPDATE PACIENTE SET NOME = :NOME, CPF = :CPF, CELULAR = :CELULAR' +
+        ' WHERE ID = :ID ')
+    Left = 40
+    Top = 272
+    ParamData = <
+      item
+        Name = 'NOME'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 80
+        Value = Null
+      end
+      item
+        Name = 'CPF'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 14
+      end
+      item
+        Name = 'CELULAR'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 16
+      end
+      item
+        Name = 'ID'
+        DataType = ftInteger
+        ParamType = ptInput
+      end>
+  end
+  object tdAgendamentoFiltroIDPaciente: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'SELECT * FROM AGENDAMENTO '
+      'WHERE ID_PACIENTE like :ID_PACIENTE')
+    Left = 528
+    Top = 128
+    ParamData = <
+      item
+        Name = 'ID_PACIENTE'
+        ParamType = ptInput
+        Value = Null
+      end>
+  end
+  object tdAgendamentoFiltroData: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'SELECT * FROM AGENDAMENTO '
+      'WHERE DATA = :DATA')
+    Left = 400
+    Top = 216
+    ParamData = <
+      item
+        Name = 'DATA'
+        ParamType = ptInput
+      end>
+  end
+  object tdAgendamentoFDataHora: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'SELECT * FROM AGENDAMENTO'
+      'WHERE DATA = :DATA AND HORA = :HORA')
+    Left = 376
+    Top = 280
+    ParamData = <
+      item
+        Name = 'DATA'
+        ParamType = ptInput
+      end
+      item
+        Name = 'HORA'
+        ParamType = ptInput
+      end>
+  end
+  object tdAgendamentoFMedico: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'SELECT * FROM AGENDAMENTO'
+      'WHERE MEDICO LIKE :MEDICO')
+    Left = 525
+    Top = 280
+    ParamData = <
+      item
+        Name = 'MEDICO'
+        ParamType = ptInput
+      end>
+  end
+  object updateAgendamento: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'UPDATE AGENDAMENTO SET '
+      'DATA = :DATA, HORA = :HORA, '
+      'ESPECIALIDADE = :ESPECIALIDADE, '
+      'MEDICO = :MEDICO '
+      'WHERE ID = :ID')
+    Left = 376
+    Top = 80
+    ParamData = <
+      item
+        Name = 'DATA'
+        ParamType = ptInput
+      end
+      item
+        Name = 'HORA'
+        ParamType = ptInput
+      end
+      item
+        Name = 'ESPECIALIDADE'
+        ParamType = ptInput
+      end
+      item
+        Name = 'MEDICO'
+        ParamType = ptInput
+      end
+      item
+        Name = 'ID'
+        ParamType = ptInput
+      end>
+  end
+  object excluirAgend: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'DELETE FROM AGENDAMENTO WHERE ID = :ID')
+    Left = 344
+    Top = 144
+    ParamData = <
+      item
+        Name = 'ID'
+        ParamType = ptInput
+      end>
+  end
+  object dsClassificacao: TDataSource
+    DataSet = tdClassificacao
+    Left = 848
+    Top = 32
+  end
+  object tdClassificacao: TFDQuery
+    Connection = Conexao
+    SQL.Strings = (
+      'SELECT * FROM ESPECIALIDADE')
+    Left = 760
+    Top = 96
+  end
+  object insertClassificacao: TFDQuery
+    Connection = Conexao
+    Left = 904
+    Top = 112
+  end
+end
